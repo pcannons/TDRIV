@@ -129,7 +129,7 @@ if(loadAndExtractBoolean)
             %Load subpics
             subpics = load(conf.regionPath, 'subpics');
             feature_struct.subpics{i} = subpics.subpics;
-            fprintf('%d regions loaded for image #%d.\n', length(subpics), i);
+            fprintf('%d regions loaded for image #%d.\n', length(subpics.subpics), i);
         end
     end
 end
@@ -166,7 +166,7 @@ for i=1:length(feature_struct.images)
             nan = isnan(CGV);
             
             if(sum(nan(:)) == 1)
-             fprintf('Image name: %s', feature_struct.names{i});
+             fprintf('Image name: %s\n', feature_struct.names{i});
              error('############ NaN features found. ############\n');
             end
         end

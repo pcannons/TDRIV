@@ -7,6 +7,7 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
     NO = 110;
     ALL_NO = 113;
     ALL_YES = 13;
+    QUIT = 27;
     
     % If no text in region
     skip_region = false;
@@ -16,8 +17,12 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
     
     % Amount to obtain each feature window
     slide_size = 4;
-      
-    % Show the original image
+    
+    %Force full screen figure
+    figure('units','normalized','outerposition',[0 0 1 1]);
+    
+    % Show original image
+
     subplot(1,3,1);
     imshow(region);
     axis image;
@@ -33,6 +38,7 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
         region = imresize(region, [window_square_size NaN]);
     end
     
+        
     % Show the scale image
     subplot(1,3,2);
     imshow(uint8(region));
@@ -111,7 +117,7 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
         box = [1+(i-1)*slide_size 1 window_square_size window_square_size];
         rectangle('Position', box,'LineWidth',2,'LineStyle','--', 'EdgeColor', 'r');
         hold off
-        
+
         % If space was clicked, no_text is ture, skips keypreses
         if(~skip_region)
             valid_key = false;
@@ -135,6 +141,9 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
                     skip_region = true;
                     Y = ones(size(Y));
                     valid_key = true;
+                elseif(ch == QUIT)
+                    close all;
+                    error('User quit');
                 else
                    fprintf('### No valid key hit, try again. ###\n'); 
                 end

@@ -6,7 +6,7 @@
 clear ; close all; clc
 
 %% To train place all images in the directory/directories in variable paths
-paths = {'../images/'};
+paths = {'images/'};
 
 % Extensions of images to check for in the paths folder
 extensions = {'.jpeg' '.jpg' '.png' '.gif' '.bmp'};
@@ -106,20 +106,31 @@ if(loadAndExtractBoolean)
     
      % If doesn't exist or number of images changed extract regions
     for i=1:length(feature_struct.images)
-       
-        [subimages locs] = textcandidate(feature_struct.images{i});
-        [subimages locs] = pruneCandidates(subimages, locs);
+        conf.regionPath = fullfile(conf.dataDir, [feature_struct.names{i} '-subpics.mat']) ;
 
-        subpics = {}; 
+        if ~exist(conf.regionPath , 'file')
+            [subimages locs] = textcandidate(feature_struct.images{i});
+            [subimages locs] = pruneCandidates(subimages, locs);
 
-        for j = 1:numel(subimages)
-            rects = extractLines(subimages{j}, locs(j,:));
-            close all;
-            subpics = [subpics; getRegions(feature_struct.images{i}, rects)];  
+            subpics = {}; 
+
+            for j = 1:numel(subimages)
+                rects = extractLines(subimages{j}, locs(j,:));
+                close all;
+                subpics = [subpics; getRegions(feature_struct.images{i}, rects)];  
+            end
+            fprintf('%d regions extracted from image #%d.\n', length(subpics), i);
+            subpics(cellfun(@isempty,subpics)) = [];
+            feature_struct.subpics{i} = subpics;
+        
+            save(conf.regionPath , 'subpics');
+        
+        else
+            %Load subpics
+            subpics = load(conf.regionPath, 'subpics');
+            feature_struct.subpics{i} = subpics.subpics;
+            fprintf('%d regions loaded for image #%d.\n', length(subpics), i);
         end
-        fprintf('%d regions extracted from image #%d.\n', length(subpics), i);
-        subpics(cellfun(@isempty,subpics)) = [];
-        feature_struct.subpics{i} = subpics;
     end
 end
 

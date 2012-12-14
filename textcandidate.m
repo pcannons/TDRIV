@@ -2,11 +2,12 @@ function [candidateTextRegions locs] = textcandidate( img )
 
     %%
     iSize = size(img);
-
+    subplot(2,2,1);
+    imshow(img);
     %%
 
     % Make some kernels
-    gauss = fspecial('gaussian', 5, 1.4);
+    gauss = fspecial('gaussian', 5, 1.5);
     deriveKernelX      = [-1  0  1; -2 0 2; -1 0 1];
     deriveKernelY      = [-1 -2 -1;  0 0 0;  1 2 1];
 
@@ -53,34 +54,39 @@ function [candidateTextRegions locs] = textcandidate( img )
         end
     end
 
+    IxyMag(1:5,:) = 0;
+    IxyMag(end-5:end,:) = 0;
+    
+    IxyMag(:,1:5) = 0;
+    IxyMag(:,end-5:end) = 0;
+    
     %%
     % Dilate horizontal edges
     horiz = zeros(size(IxyMag));
-    horiz(IxyTheQuant == 2 & IxyMag > 35) = 1;
+    horiz(IxyTheQuant == 2 & IxyMag > 10) = 1;
     horiz(isnan(horiz)) = 0;
 
-    horizdil = imdilate(horiz, ones(30, 15));
-    %imagesc(horizdil)
+    horizdil = imdilate(horiz,  strel('rectangle',[18 9]));
+    subplot(2,2,2); imagesc(horizdil)
     %%
 
     % Dilate Vertical Edges
     vert = zeros(size(IxyMag));
-    vert(IxyTheQuant == 0 & IxyMag > 50) = 1;
+    vert(IxyTheQuant == 0 & IxyMag > 70) = 1;
     vert(isnan(vert)) = 0;
-
-    vertdil = imdilate(vert, ones(7,35));
-    %imagesc(vertdil)
+    vertdil = imdilate(vert, strel('rectangle',[4 20]));
+    subplot(2,2,3); imagesc(vertdil)
 
     %%
     % Show the composite image
-    %colormap(gray)
-    %imagesc(img.*uint8(horizdil.*vertdil))
+    colormap(gray)
+    subplot(2,2,4); imshow(logical(horizdil.*vertdil))
 
     %%
     % Crop candidate text regions and store them
     candidateTextRegions = img.*uint8(horizdil.*vertdil);
 
-    BW = bwconncomp(candidateTextRegions);
+    BW = bwconncomp(candidateTextRegions, 8);
     STATS = regionprops(BW, 'all');
 
     subImages = cell(BW.NumObjects,1);

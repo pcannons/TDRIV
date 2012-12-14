@@ -1,42 +1,49 @@
 function rects = extractLines(subpic, loc)
     % Convert to black and white
     subbw = im2bw(subpic,.5);
-    imshow(subbw);
+    %imshow(subbw);
 
     spSize = size(subpic);
 
     % Project to Y axis
     horizproj = sum(subbw,2);
-
-    %Remove Adjacent Zeros
-    horizproj(horizproj(1:end-1) == 0 & horizproj(2:end) == 0) = 1;
-
+    
+    horizproj = smooth(horizproj,3);
+    
+    if (length(horizproj) < 11)
+        rects = [];
+        return;
+    end
+    
+    %horizproj = smooth(horizproj,3);
+    
     % This looks for zeros or 'near-zeros'
-    horizProjMinima = find(abs(diff(horizproj)) >= std(abs(diff(horizproj))));
+    %horizProjMinima = find(abs(diff(horizproj)) >= 1.5*std(abs(diff(horizproj))));
 
+    [~, lineBreaks] = findpeaks(abs(diff(horizproj)), 'MINPEAKDISTANCE', 8,'THRESHOLD',8);
+    
     % This finds lines that don't differ by (5) * THIS IS FROM MATLAB FILE
     % EXCHANGE *
-    lineBreaks = mat2cell(horizProjMinima',1,diff([0,find(diff(horizProjMinima') >= 10),length(horizProjMinima)]));
+    %lineBreaks = mat2cell(horizProjMinima',1,diff([0,find(diff(horizProjMinima') >= 5),length(horizProjMinima)]));
 
     % Remove consequtive lines with median
-    lineBreaks = round(cellfun(@median, lineBreaks));
+    %lineBreaks = round(cellfun(@median, lineBreaks));
 
     if (numel(lineBreaks) == 0)
         rects = [loc(1), loc(2), spSize(2), spSize(1)];
+        rectangle('Position', [loc(1), loc(2), spSize(2), spSize(1) ], ...
+        'LineWidth', 1.5, 'edgecolor', 'red');
         return;
     elseif (numel(lineBreaks) == 1)
-        rects = [loc(1), loc(2), spSize(2), spSize(1)];
-        return;
-    elseif (mod(numel(lineBreaks),2) == 1) % If odd, fashion another zero
-        temp = lineBreaks(end);
-        lineBreaks(end) = lineBreaks(end-1);
-        lineBreaks(end+1)  = temp;
+        lineBreaks = [0 lineBreaks lineBreaks spSize(2)];
+        
     end
 
     breaks = lineBreaks;
-    lineBreaks =  zeros(numel(breaks)/2,2);
-    for i = 1:numel(breaks)/2
-        lineBreaks(i,:) = breaks((i-1)*2+1:i*2);
+    lineBreaks =  zeros((numel(breaks) - 1),2);
+    for i = 1:numel(breaks)-1
+        lineBreaks(i,1) = breaks(i);
+        lineBreaks(i,2) = breaks(i+1);
     end
     %lineBreaks = reshape(lineBreaks, (numel(lineBreaks)/2), 2);
 

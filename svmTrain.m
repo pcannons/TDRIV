@@ -1,15 +1,18 @@
-function [model] = svmTrain(X, Y, C, kernelFunction, ...
-                            tol, max_passes)
-%SVMTRAIN Trains an SVM classifier using a simplified version of the SMO 
-%algorithm. 
-%   [model] = SVMTRAIN(X, Y, C, kernelFunction, tol, max_passes) trains an
-%   SVM classifier and returns trained model. X is the matrix of training 
-%   examples.  Each row is a training example, and the jth column holds the 
-%   jth feature.  Y is a column matrix containing 1 for positive examples 
-%   and 0 for negative examples.  C is the standard SVM regularization 
-%   parameter.  tol is a tolerance value used for determining equality of 
-%   floating point numbers. max_passes controls the number of iterations
-%   over the dataset (without changes to alpha) before the algorithm quits.
+function [model] = svmTrain(X, Y, C, kernelFunction, tol, max_passes)
+%	Description: Trains an SVM classifier using a simplified version of the 
+%                SMO algorithm. 
+%   
+%   Parameters: X - The matrix of training examples. Each row is a training
+%               example, and the jth column holds the jth feature.  
+%               Y - column matrix containing 1 for positive examples 
+%               and 0 for negative examples.  
+%               C - standard SVM regularization parameter.
+%               tol - tolerance value used for determining equality of 
+%               floating point numbers. 
+%               max_passes - controls the number of iterations
+%               without changes to alpha before the algorithm quits.
+%
+%   Return:     model - trained model (also saved)
 
 if ~exist('tol', 'var') || isempty(tol)
     tol = 1e-3;
@@ -21,7 +24,6 @@ end
 
 % Data parameters
 m = size(X, 1);
-n = size(X, 2);
 
 % Map 0 to -1
 Y(Y==0) = -1;
@@ -31,16 +33,11 @@ alphas = zeros(m, 1);
 b = 0;
 E = zeros(m, 1);
 passes = 0;
-eta = 0;
-L = 0;
-H = 0;
 
-% Pre-compute the Kernel Matrix since our dataset is small
-% (in practice, optimized SVM packages that handle large datasets
-%  gracefully will _not_ do this)
-% 
-% We have implemented optimized vectorized version of the Kernels here so
-% that the svm training will run faster.
+
+% Pre-compute the Kernel Matrix since dataset is small
+% Optimized vectorized version of the Kernels so that 
+% the SVM training runs faster.
 
 % Vectorized RBF Kernel
 % This is equivalent to computing the kernel on every pair of examples
@@ -63,8 +60,7 @@ while passes < max_passes,
         
         if ((Y(i)*E(i) < -tol && alphas(i) < C) || (Y(i)*E(i) > tol && alphas(i) > 0)),
             
-            % In practice, there are many heuristics one can use to select
-            % the i and j. In this simplified code, we select them randomly.
+            % Simplified randomly selected heuristics
             j = ceil(m * rand());
             while j == i,  % Make sure i \neq j
                 j = ceil(m * rand());

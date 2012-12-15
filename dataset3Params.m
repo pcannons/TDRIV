@@ -1,10 +1,17 @@
 function [C, sigma] = dataset3Params(X, y, Xval, yval)
-%dataset3Params returns optimal (C, sigma) learning parameters to use for
-%SVM with RBF kernel
-%   [C, sigma] = dataset3Params(X, y, Xval, yval) returns optimal C and 
-%   sigma based on cross-validation set.
+%	Description: using a cross validation set, computes optimal (C, sigma) 
+%                learning parameters to use for SVM with RBF kernel
+%   
+%   Parameters: X - mxn matrix where there each example is a row 
+%               y - column matrix containing 1 for positive examples 
+%               and 0 for negative examples.  
+%               Xval - same as X but used for cross validation set
+%               yval - same as y but used for cross validation set
 %
+%   Return:     C - optimal C based on cross-validation set
+%               sigma -optimal sigma based on cross-validation set
 
+    % Values of C to try
     Cv = [0.01 0.03 0.1 0.3 1 3 10 30];
     Sv = Cv;
 

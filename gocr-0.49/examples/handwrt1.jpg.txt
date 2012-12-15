@@ -1,3 +1,0 @@
-This  is  a handwritten
-example  for  GOCR.
-Write  as good as  you can.

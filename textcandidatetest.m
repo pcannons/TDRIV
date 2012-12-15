@@ -1,7 +1,17 @@
-im = feature_struct.images{42};
+im = feature_struct.images{63};
+
+% Scale down very large images
+[m, ~] = size(im);
+if (m > 720)
+    im = imresize(im, 720 / m);
+end
+[m n] = size(im);
+if (n > 720)
+    im = imresize(im, 720 / n);
+end
 
 [subimages locs] = textcandidate(im);
-
+%%
 [subimages locs] = pruneCandidates(subimages, locs);
 close all
 imshow(im);

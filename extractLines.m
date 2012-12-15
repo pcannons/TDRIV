@@ -20,7 +20,7 @@ function rects = extractLines(subpic, loc)
     % This looks for zeros or 'near-zeros'
     %horizProjMinima = find(abs(diff(horizproj)) >= 1.5*std(abs(diff(horizproj))));
 
-    [~, lineBreaks] = findpeaks(abs(diff(horizproj)), 'MINPEAKDISTANCE', 8,'THRESHOLD',8);
+    [~, lineBreaks] = findpeaks(abs(diff(horizproj)), 'MINPEAKDISTANCE', 7);
     
     % This finds lines that don't differ by (5) * THIS IS FROM MATLAB FILE
     % EXCHANGE *

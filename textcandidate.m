@@ -14,7 +14,7 @@ function [candidateTextRegions locs] = textcandidate( img )
     %%
 
     %
-    % This is canny without hysteris
+    % Our own implementation of Canny
     %
 
     % Gradient Calc
@@ -24,7 +24,7 @@ function [candidateTextRegions locs] = textcandidate( img )
     Iyy = conv2(Iy, deriveKernelY, 'same');
 
     % Gradient Magnitude and Angle
-    IxyMag = arrayfun(@norm,  Ixx, Iyy);
+    IxyMag = arrayfun(@hypot,  Ixx, Iyy);
     IxyThe = arrayfun(@atan2, Iyy, Ixx);
 
     % Quantize angle to 45degs
@@ -53,29 +53,53 @@ function [candidateTextRegions locs] = textcandidate( img )
             end
         end
     end
-
+    
+    % Clear unspecified values
+    IxyMag(isnan(IxyMag)) = 0;
+    
+    % Normalize for thresholds
+    IxyMag = IxyMag./(max(IxyMag(:)));
+    
+    % AUTOMATIC THRESHOLD SELECTION FROM MATLAB'S EDGE FUNCTION
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    counts=imhist(IxyMag, 64);
+    HIGHTHRESH = find(cumsum(counts) > 0.7*iSize(1)*iSize(2),...
+    1,'first') / 64;
+    LOWTHRESH = 0.4*HIGHTHRESH;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    HIGHTHRESH = 0.28;
+    LOWTHRESH = 0.4*HIGHTHRESH;
+    
+    % Hysterisis Thresholding (Uses Matlab's Connected Component Tools)
+    metLowThreshold = IxyMag > LOWTHRESH;
+    [highThreshX highThreshY] = find(IxyMag > HIGHTHRESH);
+    IxyMag = bwselect(metLowThreshold, highThreshY, highThreshX, 8);
+    
+    imshow(IxyMag);
+    
+    % Remove false edges from picture border
     IxyMag(1:5,:) = 0;
     IxyMag(end-5:end,:) = 0;
-    
     IxyMag(:,1:5) = 0;
     IxyMag(:,end-5:end) = 0;
+    
     
     %%
     % Dilate horizontal edges
     horiz = zeros(size(IxyMag));
-    horiz(IxyTheQuant == 2 & IxyMag > 10) = 1;
-    horiz(isnan(horiz)) = 0;
+    horiz(IxyTheQuant == 2 & IxyMag == 1) = 1;
 
-    horizdil = imdilate(horiz,  strel('rectangle',[18 9]));
-    subplot(2,2,2); imagesc(horizdil)
+    %imagesc(horiz);
+    horizdil = imdilate(horiz,  strel('rectangle',[16 8]));
+    subplot(2,2,2); imagesc(horizdil);
+    
     %%
-
     % Dilate Vertical Edges
     vert = zeros(size(IxyMag));
-    vert(IxyTheQuant == 0 & IxyMag > 70) = 1;
-    vert(isnan(vert)) = 0;
+    vert(IxyTheQuant == 0 & IxyMag == 1) = 1;
+
     vertdil = imdilate(vert, strel('rectangle',[4 20]));
-    subplot(2,2,3); imagesc(vertdil)
+    subplot(2,2,3); imagesc(vertdil);
 
     %%
     % Show the composite image

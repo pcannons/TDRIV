@@ -1,0 +1,50 @@
+# Some commands used with the CMU-Cambridge Language Modelling Toolkit
+
+# Get word frequencies.
+cat austen.txt | text2wfreq >a.wfreq
+
+# Number of words
+wc -l a.wfreq  
+
+# Make vocab (of all words here)
+cat a.wfreq | wfreq2vocab -top 15000 > a.vocab 
+
+# n-grams output as words in text files
+cat austen.txt | text2wngram -n 2 -temp /tmp >a.w2gram
+
+# If you do that once with a large -n, you can then use:
+ngram2mgram -words -n 5 -m 4 <a.w5gram >a.w4gram
+
+# Building the LMs used at the end of the chapter
+cat austen.txt | text2idngram -n 3 -vocab a.vocab -temp /tmp > a.id3gram
+cat austen.txt | text2idngram -n 2 -vocab a.vocab -temp /tmp > a.id2gram
+cat austen.txt | text2idngram -n 4 -vocab a.vocab -temp /tmp > a.id4gram
+
+idngram2lm -idngram a.id2gram -vocab a.vocab -n 2 -binary a.gt2binlm
+idngram2lm -idngram a.id3gram -vocab a.vocab -n 3 -binary a.gt3id
+idngram2lm -idngram a.id4gram -vocab a.vocab -n 4 -binary a.gt4binlm
+
+evallm -binary a.gt2binlm
+perplexity -text ja-pers-clean.txt
+perplexity -text ja-pers-tiny.txt -annotate ja-pers-tiny.2ann
+
+evallm -binary a.gt3binlm
+perplexity -text ja-pers-clean.txt
+perplexity -text ja-pers-tiny.txt -annotate ja-pers-tiny.3ann
+
+evallm -binary a.gt4binlm
+perplexity -text ja-pers-clean.txt
+perplexity -text ja-pers-tiny.txt -annotate ja-pers-tiny.4ann
+
+
+
+WHAT I DID
+text2wfreq < testdata.txt > a.wfreq
+wfreq2vocab < a.wfreq > a.vocab
+text2idngram -vocab a.vocab < testdata.txt > a.idngram
+idngram2lm -idngram a.idngram -vocab a.vocab -binary a.binlm
+//HAVE THE LANGUAGE MODEL (do this 1x)
+
+---------------------------------------------------------------------------------------------------------------------
+evallm -binary a.binlm <---- RUN WITH TEST STRING AGAINST LANGUAGE MODEL (need to run files through deletePunct(textFile before you do perplexity with evallm).  run with the least amount of oovs is the run that is closest to real text in image.
+---------------------------------------------------------------------------------------------------------------------

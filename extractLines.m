@@ -1,7 +1,7 @@
 function rects = extractLines(subpic, loc)
     % Convert to black and white
     subbw = im2bw(subpic,.5);
-    %imshow(subpic);
+    %close all; imshow(subpic);
     spSize = size(subpic);
 
     % Project to Y axis
@@ -9,7 +9,7 @@ function rects = extractLines(subpic, loc)
     
     %horizproj = smooth(horizproj,length(horizproj)/2);
     
-    if (length(horizproj) < 11)
+    if (length(horizproj) < 7)
         rects = [];
         return;
     end
@@ -17,13 +17,13 @@ function rects = extractLines(subpic, loc)
     %horizproj = smooth(horizproj,3);
     
     % This looks for zeros or 'near-zeros'
-    horizProjMinima = find(horizproj >= 1.618*std(horizproj));
+    horizProjMinima = find(horizproj >= 1.4*std(horizproj));
 
     %[~, lineBreaks] = findpeaks(abs(diff(horizproj)), 'MINPEAKDISTANCE', 7);
     
     % This finds lines that don't differ by (7) * THIS IS FROM MATLAB FILE
     % EXCHANGE *
-    lineBreaks = mat2cell(horizProjMinima',1,diff([0,find(diff(horizProjMinima') >= 8),length(horizProjMinima)]));
+    lineBreaks = mat2cell(horizProjMinima',1,diff([0,find(diff(horizProjMinima') >= 6),length(horizProjMinima)]));
 
     % Remove consequtive lines with median
     %lineBreaks = round(cellfun(@median, lineBreaks));
@@ -70,7 +70,7 @@ function rects = extractLines(subpic, loc)
     zSize = size(lineBreaks);
     rects = zeros(zSize(1), 4);
     for i = 1:zSize(1)
-        if (lineBreaks(i,2) - lineBreaks(i,1) < 8) 
+        if (lineBreaks(i,2) - lineBreaks(i,1) < 7) 
             continue;
         end
         rects(i,:) = [loc(1), loc(2)+ lineBreaks(i, 1), spSize(2), lineBreaks(i,2) - lineBreaks(i,1)];

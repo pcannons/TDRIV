@@ -109,7 +109,18 @@ if(loadAndExtractBoolean)
         conf.regionPath = fullfile(conf.dataDir, [feature_struct.names{i} '-subpics.mat']) ;
 
         if ~exist(conf.regionPath , 'file')
-            [subimages locs] = textcandidate(feature_struct.images{i});
+            im = feature_struct.images{i};
+            % Scale down very large images
+            [m, ~] = size(im);
+            if (m > 400)
+                im = imresize(im, 400 / m);
+            end
+            [m n] = size(im);
+            if (n > 400)
+                im = imresize(im, 400 / n);
+            end
+
+            [subimages locs] = textcandidate(im);
             [subimages locs] = pruneCandidates(subimages, locs);
 
             subpics = {}; 
@@ -117,7 +128,7 @@ if(loadAndExtractBoolean)
             for j = 1:numel(subimages)
                 rects = extractLines(subimages{j}, locs(j,:));
                 close all;
-                subpics = [subpics; getRegions(feature_struct.images{i}, rects)];  
+                subpics = [subpics; getRegions(im, rects)];  
             end
             fprintf('%d regions extracted from image #%d.\n', length(subpics), i);
             subpics(cellfun(@isempty,subpics)) = [];

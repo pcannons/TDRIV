@@ -1,13 +1,9 @@
-
 function [candidateTextRegions locs] = textcandidate( img )
 
-    %%
     iSize = size(img);
     subplot(2,2,1);
     imshow(img);
     
-    %%
-
     % Make some kernels
     gauss = fspecial('gaussian', 5, 1.5);
     deriveX            = [-1  0  1; -1 0 1; -1 0 1];
@@ -15,12 +11,10 @@ function [candidateTextRegions locs] = textcandidate( img )
     deriveGaussKernelX = conv2(gauss, deriveX, 'same');
     deriveGaussKernelY = conv2(gauss, deriveY, 'same');
 
-    
-    %%
-
     %
     % Our own implementation of Canny
     %
+    
     % Gradient Calc
     Ixx = conv2(double(img), deriveGaussKernelX, 'same');
     Iyy = conv2(double(img), deriveGaussKernelY, 'same');
@@ -50,7 +44,7 @@ function [candidateTextRegions locs] = textcandidate( img )
     % Non-Maximum Suppressions
     for i = 5:iSize(1)-4
         for j = 5:iSize(2)-4
-            if (IxyTheQuant(i, j) == 0) 
+            if      (IxyTheQuant(i, j) == 0) 
                 if (IxyMag(i, j) < IxyMag(i, j + 1) || IxyMag(i, j) < IxyMag(i, j - 1))
                     IxyMag(i, j) = 0;
                 end
@@ -78,35 +72,27 @@ function [candidateTextRegions locs] = textcandidate( img )
     %imshow(IxyMag);
     
     % Remove false edges from picture border
-    IxyMag(1:5,:) = 0;
+    IxyMag(1:5,:)       = 0;
     IxyMag(end-5:end,:) = 0;
-    IxyMag(:,1:5) = 0;
+    IxyMag(:,1:5)       = 0;
     IxyMag(:,end-5:end) = 0;
     
-    
-    %%
     % Dilate horizontal edges
     horiz = zeros(size(IxyMag));
     horiz(IxyTheQuant == 2 & IxyMag == 1) = 1;
-
-    %imagesc(horiz);
-    horizdil = imdilate(horiz,  strel('rectangle',[16 8]));
+    horizdil = imdilate(horiz,  strel('rectangle',[14 7]));
     subplot(2,2,2); imagesc(horizdil);
-    
-    %%
+
     % Dilate Vertical Edges
     vert = zeros(size(IxyMag));
     vert(IxyTheQuant == 0 & IxyMag == 1) = 1;
-
     vertdil = imdilate(vert, strel('rectangle',[3 15]));
     subplot(2,2,3); imagesc(vertdil);
 
-    %%
     % Show the composite image
     colormap(gray)
     subplot(2,2,4); imshow(logical(horizdil.*vertdil))
 
-    %%
     % Crop candidate text regions and store them
     candidateTextRegions = img.*uint8(horizdil.*vertdil);
 
@@ -117,10 +103,9 @@ function [candidateTextRegions locs] = textcandidate( img )
     locs = zeros(BW.NumObjects,2);
 
     for i=1:BW.NumObjects
-        BBox = round(STATS(i).BoundingBox);
-        subImages{i} = imcrop(img, BBox);
+        BBox         = round(STATS(i).BoundingBox);
+        subImages{i} = imcrop(candidateTextRegions, BBox);
         locs(i,:)    = BBox(1:2);
-        %imshow(cell2mat(subImages(i,1)));
     end
     
     candidateTextRegions = subImages;

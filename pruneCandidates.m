@@ -5,8 +5,8 @@ function [prunedsi prunedlocs] = pruneCandidates(subImages, locs)
 %   Includes: Minimum Pixel Count, Aspect Ratio, Line Height etc
 
 MIN_SIZE = 75;
-MIN_LINE_HEIGHT = 1.2;
-MIN_WIDTH = 8;
+MIN_ASPECT_RATIO = 0.7;
+MIN_WIDTH = 7;
 
 prunedsi = subImages;
 prunedlocs = locs;
@@ -17,7 +17,7 @@ for i = 1:numel(subImages)
         toBeRemoved(end + 1) = i;
     end
     
-    if (siSize(2)/siSize(1) < MIN_LINE_HEIGHT) % Too skinny
+    if (siSize(2)/siSize(1) < MIN_ASPECT_RATIO) % Too skinny
         toBeRemoved(end + 1) = i;
     end
     

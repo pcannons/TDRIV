@@ -1,37 +1,53 @@
+
 function [candidateTextRegions locs] = textcandidate( img )
 
     %%
     iSize = size(img);
     subplot(2,2,1);
     imshow(img);
+    
     %%
 
     % Make some kernels
     gauss = fspecial('gaussian', 5, 1.5);
-    deriveKernelX      = [-1  0  1; -2 0 2; -1 0 1];
-    deriveKernelY      = [-1 -2 -1;  0 0 0;  1 2 1];
+    deriveX            = [-1  0  1; -1 0 1; -1 0 1];
+    deriveY            = [-1 -1 -1;  0 0 0;  1 1 1];
+    deriveGaussKernelX = conv2(gauss, deriveX, 'same');
+    deriveGaussKernelY = conv2(gauss, deriveY, 'same');
 
+    
     %%
 
     %
     % Our own implementation of Canny
     %
-
     % Gradient Calc
-    Ix  = conv2(double(img), gauss, 'same');
-    Ixx = conv2(Ix, deriveKernelX, 'same');
-    Iy  = conv2(double(img), gauss, 'same');
-    Iyy = conv2(Iy, deriveKernelY, 'same');
+    Ixx = conv2(double(img), deriveGaussKernelX, 'same');
+    Iyy = conv2(double(img), deriveGaussKernelY, 'same');
 
     % Gradient Magnitude and Angle
-    IxyMag = arrayfun(@hypot,  Ixx, Iyy);
+    IxyMag = arrayfun(@norm,  Ixx, Iyy);
     IxyThe = arrayfun(@atan2, Iyy, Ixx);
+
+    % Clear unspecified values
+    IxyMag(isnan(IxyMag)) = 0;
+    
+    % Normalize for thresholds
+    IxyMag = IxyMag./(max(IxyMag(:)));
+    
+    % AUTOMATIC THRESHOLD SELECTION FROM MATLAB'S EDGE FUNCTION
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    counts=imhist(IxyMag, 64);
+    HIGHTHRESH = find(cumsum(counts) > 0.8*iSize(1)*iSize(2),...
+    1,'first') / 64;
+    LOWTHRESH = 0.3*HIGHTHRESH;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Quantize angle to 45degs
     IxyTheQuant = (IxyThe + pi)*180/pi;
     IxyTheQuant = mod(round(IxyTheQuant/45),4)*1;
-
-    % Non Max Suppressions
+    
+    % Non-Maximum Suppressions
     for i = 5:iSize(1)-4
         for j = 5:iSize(2)-4
             if (IxyTheQuant(i, j) == 0) 
@@ -54,28 +70,12 @@ function [candidateTextRegions locs] = textcandidate( img )
         end
     end
     
-    % Clear unspecified values
-    IxyMag(isnan(IxyMag)) = 0;
-    
-    % Normalize for thresholds
-    IxyMag = IxyMag./(max(IxyMag(:)));
-    
-    % AUTOMATIC THRESHOLD SELECTION FROM MATLAB'S EDGE FUNCTION
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    counts=imhist(IxyMag, 64);
-    HIGHTHRESH = find(cumsum(counts) > 0.7*iSize(1)*iSize(2),...
-    1,'first') / 64;
-    LOWTHRESH = 0.4*HIGHTHRESH;
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    HIGHTHRESH = 0.28;
-    LOWTHRESH = 0.4*HIGHTHRESH;
-    
     % Hysterisis Thresholding (Uses Matlab's Connected Component Tools)
     metLowThreshold = IxyMag > LOWTHRESH;
     [highThreshX highThreshY] = find(IxyMag > HIGHTHRESH);
     IxyMag = bwselect(metLowThreshold, highThreshY, highThreshX, 8);
     
-    imshow(IxyMag);
+    %imshow(IxyMag);
     
     % Remove false edges from picture border
     IxyMag(1:5,:) = 0;
@@ -98,7 +98,7 @@ function [candidateTextRegions locs] = textcandidate( img )
     vert = zeros(size(IxyMag));
     vert(IxyTheQuant == 0 & IxyMag == 1) = 1;
 
-    vertdil = imdilate(vert, strel('rectangle',[4 20]));
+    vertdil = imdilate(vert, strel('rectangle',[3 15]));
     subplot(2,2,3); imagesc(vertdil);
 
     %%
@@ -118,7 +118,7 @@ function [candidateTextRegions locs] = textcandidate( img )
 
     for i=1:BW.NumObjects
         BBox = round(STATS(i).BoundingBox);
-        subImages{i} = imcrop(candidateTextRegions, BBox);
+        subImages{i} = imcrop(img, BBox);
         locs(i,:)    = BBox(1:2);
         %imshow(cell2mat(subImages(i,1)));
     end

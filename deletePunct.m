@@ -17,6 +17,8 @@ for i = 1:n
         newArray(i) = space;
     elseif (fileArray(i) == '"')
         newArray(i) = space;
+    elseif (fileArray(i) == '''')
+        newArray(i) = space;
     elseif (fileArray(i) == '?')
         newArray(i) = space;
     elseif (fileArray(i) == ',')
@@ -34,6 +36,10 @@ for i = 1:n
     elseif (fileArray(i) == '~')
         newArray(i) = space;
     elseif (fileArray(i) == '/')
+        newArray(i) = space;
+    elseif (fileArray(i) == ':')
+        newArray(i) = space;
+    elseif (fileArray(i) == ';')
         newArray(i) = space;
     else
         newArray(i) = fileArray(i);  

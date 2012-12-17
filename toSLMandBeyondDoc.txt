@@ -1,0 +1,9 @@
+toSLMandBeyond doc
+
+toSLMandBeyond recieves as input the three file names to the text strings 
+output by OCR (in any order).  calls deletePunct on each file to getrid of
+any puncuation in these files. deletePunct creates a new file named 'new'+
+original filename.  This is run through evallm perplexity function.  The 
+output is saved in result (for each file) and parsed to get the number of 
+OOVS (out of vocabulary words).  The filename with the lowest number of OOVS
+is returned.

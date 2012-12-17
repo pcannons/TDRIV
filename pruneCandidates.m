@@ -4,7 +4,7 @@ function [prunedsi prunedlocs] = pruneCandidates(subImages, locs)
 %
 %   Includes: Minimum Pixel Count, Aspect Ratio, Line Height etc
 
-MIN_SIZE = 75;
+MIN_SIZE = 90;
 MIN_ASPECT_RATIO = 0.7;
 MIN_WIDTH = 7;
 

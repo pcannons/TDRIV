@@ -1,5 +1,7 @@
-function cc = pruneConnectedComponents(cc)
-
+function newRegion = pruneConnectedComponents(cc)
+    newRegion = zeros(size(cc));
+    cc = logical(cc);
+    cc = bwconncomp(cc);
     regions = regionprops(cc);
     toBePruned = [];
     
@@ -30,5 +32,9 @@ function cc = pruneConnectedComponents(cc)
     
     cc.PixelIdxList(toBePruned) = [];
     cc.NumObjects = cc.NumObjects - length(toBePruned);
+   
+    for i = 1:cc.NumObjects
+        newRegion(cc.PixelIdxList{i}) = 1;
+    end
 
 end

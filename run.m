@@ -4,6 +4,9 @@ clear ; close all; clc
 %% To test place all images in the directory/directories in variable paths
 paths = {'timages/'};
 
+% Parameter for K - means
+K = 3;
+
 % Extensions of images to check for in the paths folder
 extensions = {'.jpeg' '.jpg' '.png' '.gif' '.bmp'};
 
@@ -181,6 +184,11 @@ for i=1:length(feature_struct.features)
 %     end
 end
 
+% Copy subpics into segmented regions for proper cell size
+% The actual image regions will be replaced with segments
+feature_struct.segmented_regions = feature_struct.subpics;
+
+
 for i=1:length(feature_struct.features)
     for j=1:length(feature_struct.features{i})
         set = svmPredict(model, feature_struct.features{i}{j});
@@ -192,11 +200,42 @@ for i=1:length(feature_struct.features)
         else
             feature_struct.text_candidate{i}(j) = 0;
         end
-
+        
+        feature_struct.segmented_regions{i}{j} = graykmeans(feature_struct.subpics{i}{j},K);
+        
+        % Runs connected component analysis on each part
+        for k=1:K
+            feature_struct.segmented_regions{i}{j}(:,:,k) = ...
+                pruneConnectedComponents(feature_struct.segmented_regions{i}{j}(:,:,k));
+        end
+        
         fprintf('Probabilty of text: %f\n', prob);
-        imshow(feature_struct.subpics{i}{j});
-        pause
+        %imshow(feature_struct.subpics{i}{j});
+        %pause
     end   
 end
 
+feature_struct.text = feature_struct.segmented_regions;
+
+for i=1:length(feature_struct.features)
+    for j=1:length(feature_struct.features{i})
+        
+        resultCell = cell(1,3);
+        
+        for k=1:K
+            imwrite(feature_struct.segmented_regions{i}{j}(:,:,k), 'tmp.png',...
+                'png');
+            
+            system('tesseract -psm 7 tmp.png tmp');
+            [status, resultCell{k}] = system('cat tmp.txt');
+            
+        end
+        
+        feature_struct.segmented_regions{i}{j} = resultCell;
+        
+    end
+end
+
+% graykmeans.m
+% pruneConnectedComponenets.m
 close all

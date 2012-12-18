@@ -1,4 +1,5 @@
-im = feature_struct.images{32};
+
+im = feature_struct.images{65};
 
 % Scale down very large images
 [m, ~] = size(im);
@@ -12,16 +13,13 @@ end
 
 %i1 = impyramid(im, 'reduce');
 
-[subimages locs] = textcandidate(im);
-%%
+[subimages locs] = textcandidate(im, 'false');
 [subimages locs] = pruneCandidates(subimages, locs);
-close all
 imshow(im);
 hold on;
 
 for i = 1:numel(subimages)
-    rects = extractLines(subimages{i}, locs(i,:));
+    rects = extractLines(subimages{i}, locs(i,:), 'true');
     %close all;
     %subpics = [subpics; getRegions(im, rects)];  
 end
-

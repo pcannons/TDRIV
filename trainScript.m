@@ -120,14 +120,13 @@ if(loadAndExtractBoolean)
                 im = imresize(im, 400 / n);
             end
 
-            [subimages locs] = textcandidate(im);
+            [subimages locs] = textcandidate(im, 'false');
             [subimages locs] = pruneCandidates(subimages, locs);
 
             subpics = {}; 
 
             for j = 1:numel(subimages)
-                rects = extractLines(subimages{j}, locs(j,:));
-                close all;
+                rects = extractLines(subimages{j}, locs(j,:), 'false');
                 subpics = [subpics; getRegions(im, rects)];  
             end
             fprintf('%d regions extracted from image #%d.\n', length(subpics), i);

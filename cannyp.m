@@ -1,4 +1,4 @@
-function [IxyMag IxyTheQuant] = cannyp(img)
+function [IxyMag IxyTheQuant] = cannyp(img, sigma)
 %
 % Our own implementation of Canny
 %
@@ -6,7 +6,7 @@ function [IxyMag IxyTheQuant] = cannyp(img)
     iSize = size(img);
     
     % Make some kernels
-    gauss = fspecial('gaussian', 5, 1.6);
+    gauss = fspecial('gaussian', 5, sigma);
     deriveX            = [-1  0  1; -1 0 1; -1 0 1];
     deriveY            = [-1 -1 -1;  0 0 0;  1 1 1];
     deriveGaussKernelX = conv2(gauss, deriveX, 'same');
@@ -17,8 +17,8 @@ function [IxyMag IxyTheQuant] = cannyp(img)
     Iyy = conv2(double(img), deriveGaussKernelY, 'same');
 
     % Gradient Magnitude and Angle
-    IxyMag = arrayfun(@norm,  Ixx, Iyy);
-    IxyThe = arrayfun(@atan2, Iyy, Ixx);
+     IxyMag = arrayfun(@norm, Ixx, Iyy);
+     IxyThe = arrayfun(@atan2, Iyy, Ixx);
 
     % Clear unspecified values
     IxyMag(isnan(IxyMag)) = 0;

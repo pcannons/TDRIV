@@ -212,7 +212,7 @@ for i=1:length(feature_struct.features)
             
             conf = conf + SVMoutput * 1/(sqrt(2*pi)*sigma)*exp(-di^2/(2*sigma^2));
         end
-        imshow(region);
+        
         if(conf >= 0)
            feature_struct.text_candidate{i}(j) = 1; 
         end

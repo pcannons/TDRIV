@@ -1,1 +1,49 @@
 Implementation of the most efficient algorithms in the paper "Text detection and recognition in images and video frames"
+
+Requirements:
+
+Install libpng libpng-devel libtiff libtiff-devel
+
+### Leptonica ###
+wget http://www.leptonica.com/source/leptonica-1.69.tar.gz
+tar -xzvf leptonica-1.69.tar.gz
+cd leptonica-1.69
+./configure
+make
+sudo make install
+
+### Tesseract ###
+wget http://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.eng.tar.gz
+wget http://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.02.tar.gz
+
+tar -xvf tesseract-ocr-3.02.02.tar.gz
+tar -xvf tesseract-ocr-3.02.eng.tar.gz
+
+cd tesseract-ocr
+./configure
+make
+sudo make install
+
+### CMU Language Modelling Toolkit ###
+wget http://svr-www.eng.cam.ac.uk/~prc14/CMU-Cam_Toolkit_v2.tar.gz
+tar -zxvf CMU-Cam_Toolkit_v2.tar.gz
+cd CMU-Cam_Toolkit_v2
+./endian.sh
+cd src
+-DSLM_SWAP_BYTES in Makefile for little endian
+make install
+./install-sh ../bin/*
+
+### Ram disk ###
+mke2fs -m 0 /dev/ram0
+mkdir /mnt/rd
+mount /dev/ram0 /mnt/rd
+tune2fs -l /dev/ram0
+chown root:root /mnt/rd
+chmod 777 /mnt/rd
+
+Addd to /etc/rc/.local to run on startup:
+/sbin/mke2fs -q -m 0 /dev/ram0
+/bin/mount /dev/ram0 /mnt/rd
+/bin/chmod 777 /mnt/rd
+

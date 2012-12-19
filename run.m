@@ -205,18 +205,39 @@ for i=1:length(feature_struct.features)
             di = center - ((l+1)*4);
             
             SVMoutput = set(l);
+           
             if(SVMoutput == 0)
                 SVMoutput = -1;
             end
+            
             conf = conf + SVMoutput * 1/(sqrt(2*pi)*sigma)*exp(-di^2/(2*sigma^2));
         end
+        imshow(region);
+        if(conf >= 0)
+           feature_struct.text_candidate{i}(j) = 1; 
+        end
         
-        feature_struct.segmented_regions{i}{j} = graykmeans(feature_struct.subpics{i}{j},K);
+        feature_struct.segmented_regions{i}{j} = cell(9, 1);
+        tmp = graykmeans(feature_struct.subpics{i}{j},2);
+        for k = 1:2
+            feature_struct.segmented_regions{i}{j}{k} = tmp(:,:,k);
+        end
+        tmp = graykmeans(feature_struct.subpics{i}{j},3);
+        for k = 3:5
+            feature_struct.segmented_regions{i}{j}{k} = tmp(:,:,k-2);
+        end
+        tmp = graykmeans(feature_struct.subpics{i}{j},4);
+        for k = 6:9
+            feature_struct.segmented_regions{i}{j}{k} = tmp(:,:,k-5);
+        end        
+        % [graykmeans(feature_struct.subpics{i}{j},2) ...;
+        %graykmeans(feature_struct.subpics{i}{j},3) graykmeans(feature_struct.subpics{i}{j},4)];
+        
         
         % Runs connected component analysis on each part
-        for k=1:K
-            feature_struct.segmented_regions{i}{j}(:,:,k) = ...
-                pruneConnectedComponents(feature_struct.segmented_regions{i}{j}(:,:,k));
+        for k=1:(2+3+4)
+            feature_struct.segmented_regions{i}{j}{k} = ...
+                pruneConnectedComponents(feature_struct.segmented_regions{i}{j}{k});
         end
         
         %fprintf('Probabilty of text: %f\n', prob);
@@ -231,7 +252,7 @@ system('export LD_LIBRARY_PATH=/lib');
 for i=1:length(feature_struct.features)
     for j=1:length(feature_struct.features{i})
         
-        resultCell = cell(1,3);
+        resultCell = cell(1,9);
         
 %         for k=1:K
 %             imwrite((feature_struct.segmented_regions{i}{j}(:,:,k)).*255, 'tmp.png',...
@@ -241,28 +262,41 @@ for i=1:length(feature_struct.features)
 %             [status, resultCell{k}] = system('cat tmp.txt');
 %             
 %         end
+        segRegions = feature_struct.segmented_regions{i}{j};
+        parfor k = 1:(2+3+4)
+            imwrite((segRegions{k}).*255, strcat('/mnt/rd/tmp',num2str(k),'.png'),...
+                'png', 'bitdepth', 8);            
+        end
         
-            imwrite((feature_struct.segmented_regions{i}{j}(:,:,1)).*255, '/mnt/rd/tmp1.png',...
-                'png', 'bitdepth', 8);
-            imwrite((feature_struct.segmented_regions{i}{j}(:,:,2)).*255, '/mnt/rd/tmp2.png',...
-                'png', 'bitdepth', 8);
-            imwrite((feature_struct.segmented_regions{i}{j}(:,:,3)).*255, '/mnt/rd/tmp3.png',...
-                'png', 'bitdepth', 8);
+        parfor k = 1:(2+3+4)
+            system(strcat('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp',num2str(k),'.png /mnt/rd/tmp',num2str(k)));
+        end
+        
+        parfor k = 1:(2+3+4)
+            [~, resultCell{k}] = system(strcat('cat /mnt/rd/tmp',num2str(k),'.txt'));
+        end
+        
+%             imwrite((feature_struct.segmented_regions{i}{j}(:,:,1)).*255, '/mnt/rd/tmp1.png',...
+%                 'png', 'bitdepth', 8);
+%             imwrite((feature_struct.segmented_regions{i}{j}(:,:,2)).*255, '/mnt/rd/tmp2.png',...
+%                 'png', 'bitdepth', 8);
+%             imwrite((feature_struct.segmented_regions{i}{j}(:,:,3)).*255, '/mnt/rd/tmp3.png',...
+%                 'png', 'bitdepth', 8);
             
-            spmd
-                system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp1.png /mnt/rd/tmp1');
-                system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp2.png /mnt/rd/tmp2');
-                system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp3.png /mnt/rd/tmp3');
-            end
-            spmd
-                [~, resultCell{1}] = system('cat /mnt/rd/tmp1.txt');
-                [~, resultCell{2}] = system('cat /mnt/rd/tmp2.txt');
-                [~, resultCell{3}] = system('cat /mnt/rd/tmp3.txt');
-            end
+%             spmd
+%                 system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp1.png /mnt/rd/tmp1');
+%                 system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp2.png /mnt/rd/tmp2');
+%                 system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp3.png /mnt/rd/tmp3');
+%             end
+%             spmd
+%                 [~, resultCell{1}] = system('cat /mnt/rd/tmp1.txt');
+%                 [~, resultCell{2}] = system('cat /mnt/rd/tmp2.txt');
+%                 [~, resultCell{3}] = system('cat /mnt/rd/tmp3.txt');
+%             end
             
             feature_struct.text{i}{j} = resultCell;
             
-            feature_struct.finaltext{i}{j} = toSLMandBeyond(resultCell{:});
+            %feature_struct.finaltext{i}{j} = toSLMandBeyond(resultCell{:});
     end
    
 end

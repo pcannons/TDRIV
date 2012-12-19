@@ -34,7 +34,7 @@ function [ CGV_Feature_Array Y ] = getCGVFeatures( region )
     
     % Precalculate all the indicies of features windows
     feature_indicies = cell(1,num_feature_windows);
-    for i = 1:num_feature_windows
+    parfor i = 1:num_feature_windows
         feature_indicies{i} = 1+4*(i-1):16+4*(i-1);
     end
     
@@ -45,7 +45,7 @@ function [ CGV_Feature_Array Y ] = getCGVFeatures( region )
     I = cell(1, num_feature_windows);
     
     % Store all the sliding windows into I
-    for i=1:num_feature_windows
+    parfor i=1:num_feature_windows
         I{i} = region(vertical_indicies, feature_indicies{i});
     end
           

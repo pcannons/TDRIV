@@ -108,13 +108,13 @@ if(loadAndExtractBoolean)
         conf.regionPath = fullfile(conf.dataDir, [feature_struct.names{i} '-subpics.mat']) ;
 
         if ~exist(conf.regionPath , 'file')
-            [subimages locs] = textcandidate(feature_struct.images{i});
+            [subimages locs] = textcandidate(feature_struct.images{i}, 'false');
             [subimages locs] = pruneCandidates(subimages, locs);
 
             subpics = {}; 
 
             for j = 1:numel(subimages)
-                rects = extractLines(subimages{j}, locs(j,:));
+                rects = extractLines(subimages{j}, locs(j,:), 'false');
                 close all;
                 subpics = [subpics; getRegions(feature_struct.images{i}, rects)];  
             end
@@ -209,34 +209,52 @@ for i=1:length(feature_struct.features)
                 pruneConnectedComponents(feature_struct.segmented_regions{i}{j}(:,:,k));
         end
         
-        fprintf('Probabilty of text: %f\n', prob);
+        %fprintf('Probabilty of text: %f\n', prob);
         %imshow(feature_struct.subpics{i}{j});
         %pause
     end   
 end
 
 feature_struct.text = feature_struct.segmented_regions;
-featur_struct.finaltext = feature_struct.segmented_regions;
+system('export LD_LIBRARY_PATH=/lib');
 
 for i=1:length(feature_struct.features)
     for j=1:length(feature_struct.features{i})
         
         resultCell = cell(1,3);
         
-        for k=1:K
-            imwrite(feature_struct.segmented_regions{i}{j}(:,:,k), 'tmp.png',...
-                'png');
-            
-            system('tesseract -psm 7 tmp.png tmp');
-            [status, resultCell{k}] = system('cat tmp.txt');
-            
-        end
+%         for k=1:K
+%             imwrite((feature_struct.segmented_regions{i}{j}(:,:,k)).*255, 'tmp.png',...
+%                 'png', 'bitdepth', 8);
+%             
+%             system('/usr/local/bin/tesseract -psm 7 tmp.png tmp');
+%             [status, resultCell{k}] = system('cat tmp.txt');
+%             
+%         end
         
-        feature_struct.segmented_regions{i}{j} = resultCell;
-        feature_struct.finaltext{i}{j} = toSLMandBeyond(resultCell{:})
+            imwrite((feature_struct.segmented_regions{i}{j}(:,:,1)).*255, 'tmp1.png',...
+                'png', 'bitdepth', 8);
+            imwrite((feature_struct.segmented_regions{i}{j}(:,:,2)).*255, 'tmp2.png',...
+                'png', 'bitdepth', 8);
+            imwrite((feature_struct.segmented_regions{i}{j}(:,:,3)).*255, 'tmp3.png',...
+                'png', 'bitdepth', 8);
+            
+            spmd
+                system('/usr/local/bin/tesseract -psm 7 tmp1.png tmp1');
+                system('/usr/local/bin/tesseract -psm 7 tmp2.png tmp2');
+                system('/usr/local/bin/tesseract -psm 7 tmp3.png tmp3');
+            end
+            spmd
+                [~, resultCell{1}] = system('cat tmp1.txt');
+                [~, resultCell{2}] = system('cat tmp2.txt');
+                [~, resultCell{3}] = system('cat tmp3.txt');
+            end
+            
+            feature_struct.text{i}{j} = resultCell;
+            
+            feature_struct.finaltext{i}{j} = toSLMandBeyond(resultCell{:});
     end
+   
 end
 
-% graykmeans.m
-% pruneConnectedComponenets.m
 close all

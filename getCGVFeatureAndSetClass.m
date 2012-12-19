@@ -45,12 +45,12 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
     axis image;
    
     % Calculage graident of region
-    region_gradient = gradient(region);
+    rg_x = gradient(region);
     
     % Global mean
-    GM = mean(region_gradient(:));  
+    GM = mean(rg_x(:));  
     % Global variance
-    GV = var((region_gradient(:)));
+    GV = var((rg_x(:)));
     
     % Obtain the new width after scaling to window_square_size height
     region_width = size(region,2);
@@ -87,11 +87,12 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
 	for i=1:num_feature_windows
         CGV_Features{i} = zeros(end_pixel-start_pixel,end_pixel-start_pixel);
         
-        region_gradient = gradient(I{i});
+        [rg_x rg_y]= gradient(I{i});
+        g_mag = arrayfun(@norm, rg_x, rg_y);
         
         for k=start_pixel+1:end_pixel
             for l=start_pixel+1:end_pixel
-                local_region = region_gradient(k-start_pixel:k+start_pixel, l-start_pixel:l+start_pixel);
+                local_region = g_mag(k-start_pixel:k+start_pixel, l-start_pixel:l+start_pixel);
 
                 % Local mean
                 LM = mean(local_region(:));
@@ -100,7 +101,9 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
                 LV = var(local_region(:));
 
                 % Constant gradient variance
-                CGV_Features{i}(k-start_pixel,l-start_pixel) = (region_gradient(k,l) - LM)*sqrt(GV/LV);
+                CGV_Features{i}(k-start_pixel,l-start_pixel) = (g_mag(k,l) - LM)*sqrt(GV/LV);
+                %imagesc(local_region);
+                %axis square;
             end
         end
         

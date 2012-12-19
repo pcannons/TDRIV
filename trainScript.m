@@ -25,7 +25,7 @@ end
 conf.imagesPath = fullfile(conf.dataDir, 'images.mat') ;
 conf.modelPath = fullfile(conf.dataDir, 'model.mat');
 
-conf.trainSVM = false;
+conf.trainSVM = true;
 
 % Flag for whether or not a parameter has been loaded
 loaded = false;

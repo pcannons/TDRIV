@@ -253,15 +253,7 @@ for i=1:length(feature_struct.features)
     for j=1:length(feature_struct.features{i})
         
         resultCell = cell(1,9);
-        
-%         for k=1:K
-%             imwrite((feature_struct.segmented_regions{i}{j}(:,:,k)).*255, 'tmp.png',...
-%                 'png', 'bitdepth', 8);
-%             
-%             system('/usr/local/bin/tesseract -psm 7 tmp.png tmp');
-%             [status, resultCell{k}] = system('cat tmp.txt');
-%             
-%         end
+
         segRegions = feature_struct.segmented_regions{i}{j};
         parfor k = 1:(2+3+4)
             imwrite((segRegions{k}).*255, strcat('/mnt/rd/tmp',num2str(k),'.png'),...
@@ -275,33 +267,13 @@ for i=1:length(feature_struct.features)
         parfor k = 1:(2+3+4)
             [~, resultCell{k}] = system(strcat('cat /mnt/rd/tmp',num2str(k),'.txt'));
         end
-        
-%             imwrite((feature_struct.segmented_regions{i}{j}(:,:,1)).*255, '/mnt/rd/tmp1.png',...
-%                 'png', 'bitdepth', 8);
-%             imwrite((feature_struct.segmented_regions{i}{j}(:,:,2)).*255, '/mnt/rd/tmp2.png',...
-%                 'png', 'bitdepth', 8);
-%             imwrite((feature_struct.segmented_regions{i}{j}(:,:,3)).*255, '/mnt/rd/tmp3.png',...
-%                 'png', 'bitdepth', 8);
-            
-%             spmd
-%                 system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp1.png /mnt/rd/tmp1');
-%                 system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp2.png /mnt/rd/tmp2');
-%                 system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp3.png /mnt/rd/tmp3');
-%             end
-%             spmd
-%                 [~, resultCell{1}] = system('cat /mnt/rd/tmp1.txt');
-%                 [~, resultCell{2}] = system('cat /mnt/rd/tmp2.txt');
-%                 [~, resultCell{3}] = system('cat /mnt/rd/tmp3.txt');
-%             end
+
             
             feature_struct.text{i}{j} = resultCell;
             
             l = resultCell;
-            
-            
-            
+ 
             feature_struct.finaltext{i}{j} = toSLMandBeyond(l{:});
-            %feature_struct.finaltext{i}{j} = toSLMandBeyond(resultCell{:});
     end
    
 end

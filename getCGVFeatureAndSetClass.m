@@ -88,7 +88,7 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
         CGV_Features{i} = zeros(end_pixel-start_pixel,end_pixel-start_pixel);
         
         [rg_x rg_y]= gradient(I{i});
-        g_mag = arrayfun(@norm, rg_x, rg_y);
+        g_mag = arrayfun(@hypot, rg_x, rg_y);
         
         for k=start_pixel+1:end_pixel
             for l=start_pixel+1:end_pixel
@@ -101,13 +101,20 @@ function [ CGV_Feature_Array Y ] = getCGVFeatureAndSetClass( region )
                 LV = var(local_region(:));
 
                 % Constant gradient variance
-                CGV_Features{i}(k-start_pixel,l-start_pixel) = (g_mag(k,l) - LM)*sqrt(GV/LV);
-                %imagesc(local_region);
+                
+                if(LV == 0)
+                    CGV_Features{i}(k-start_pixel,l-start_pixel) = 0;
+                else
+                    CGV_Features{i}(k-start_pixel,l-start_pixel) = (g_mag(k,l) - LM)*sqrt(GV/LV);
+                end
+                    %imagesc(local_region);
                 %axis square;
             end
         end
         
         CGV_Features{i} = CGV_Features{i}(:)';
+        CGV_Features{i}(isnan(CGV_Features{i})) = 0;
+        
         
         % Show the scale image
         subplot(1,3,3); 

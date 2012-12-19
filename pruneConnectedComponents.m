@@ -12,16 +12,16 @@ function newRegion = pruneConnectedComponents(cc)
         regArea = regions(i).Area;
 
          % Aspect Ratio Pruning Heuristic
-        if (bb(3)/bb(4) < 0.1 || bb(3)/bb(4) > 4.5)
+        if (bb(3)/bb(4) < 0.07 || bb(3)/bb(4) > 4.5)
             toBePruned(end + 1) = i;
             continue;
         end
 
         % Small area Pruning Heuristic
-%         if (regArea < 10) 
-%             toBePruned(end + 1) = i;
-%             continue;
-%         end
+        if (regArea < 8) 
+            toBePruned(end + 1) = i;
+            continue;
+        end
         
         % Fat latter Pruning Heuristic
         if (bb(3) > 2.1 * cc.ImageSize(2))

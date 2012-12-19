@@ -216,6 +216,7 @@ for i=1:length(feature_struct.features)
 end
 
 feature_struct.text = feature_struct.segmented_regions;
+featur_struct.finaltext = feature_struct.segmented_regions;
 
 for i=1:length(feature_struct.features)
     for j=1:length(feature_struct.features{i})
@@ -232,7 +233,7 @@ for i=1:length(feature_struct.features)
         end
         
         feature_struct.segmented_regions{i}{j} = resultCell;
-        
+        feature_struct.finaltext{i}{j} = toSLMandBeyond(resultCell{:})
     end
 end
 

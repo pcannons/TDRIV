@@ -1,8 +1,16 @@
 Implementation of the most efficient algorithms in the paper "Text detection and recognition in images and video frames"
 
 Requirements:
+This config was ran on Redhat 6.1
+It should be possible to adapt these instructions to any Linux or Mac OS X system.
 
 Install libpng libpng-devel libtiff libtiff-devel
+
+### Matlab ###
+cd /usr/local/Matlab/sys/os/glnxa64/
+mkdir old
+mv libstdc++.so.6 old/
+ln -s /usr/lib64/libstdc++.so.6 .
 
 ### Leptonica ###
 wget http://www.leptonica.com/source/leptonica-1.69.tar.gz
@@ -33,6 +41,7 @@ cd src
 -DSLM_SWAP_BYTES in Makefile for little endian
 make install
 ./install-sh ../bin/*
+ln -s /CMU-Cam_Toolkit_v2/bin/* .
 
 ### Ram disk ###
 mke2fs -m 0 /dev/ram0

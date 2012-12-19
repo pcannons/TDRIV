@@ -13,6 +13,8 @@ extensions = {'.jpeg' '.jpg' '.png' '.gif' '.bmp'};
 
 % This is where the model will be stored afterwards for prediction
 model = [];
+x1 = [1 2 1];
+x2 = [0 4 -1];
 
 % Directory name where intermediate steps are saved
 conf.dataDir = 'data/';

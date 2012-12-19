@@ -2,9 +2,12 @@ function oovs = findOOVS(region)
 % Input: text candidate regiobn
 % Output: number of out of vocabulary words
 
-oovs = '0';
+oovs = '00';
 
 [m n] = size(region);
+if (n == 0)
+    oovs = '999';
+end
 
 for i = 1:n
     if (region(i) == 'O')
@@ -16,12 +19,16 @@ for i = 1:n
                         oovs = '999';
                         break;
                     end
+                    if (region(i - 6) == 'n' || region(i - 7) == 'n')
+                        oovs = '999';
+                        break;
+                    end
                     % There are some identified words
                     i = i - 2;
-                    while (region(i) ~= ' ')
+                    while (region(i) ~= ')')
                         i = i - 1;
                     end
-                    i = i + 1;
+                    i = i + 2;
                     while (region(i) ~= ' ')
                         oovs = strcat(oovs, region(i));
                         i = i + 1;

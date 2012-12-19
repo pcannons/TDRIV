@@ -6,20 +6,23 @@ function textStr = toSLMandBeyond(varargin)
 
 for i = 1:nargin
     % delete all punctuation
-    filename{i} = deletePunctStr(varargin(i));
+    filename{i} = deletePunctStr(varargin{i});
 end
 
 for i = 1:nargin
     % Create command file to run SLM
     nid = fopen('commands', 'w');
-    fprintf(nid, '%s', strcat('perplexity -text ', filename{i}, '\n', 'quit', '\n'));
+     fprintf(nid, '%s', ['perplexity -text ', filename{i}]);
+     fprintf(nid, '\n%s\n', 'quit');
     
     [status, result] = system('evallm -binary a.binlm < commands');
+    
+    delete(filename{i});
     % Indicates call did not work
     if (status ~= 0)
-        disp('toSLMandBeyond: Error with region1');
+        disp('toSLMandBeyond: Error with region');
     end
-    numOOVs(i) = findOOVS(result)
+    numOOVs(i) = findOOVS(result);
     
     fclose(nid);
 end

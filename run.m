@@ -269,7 +269,7 @@ for i=1:length(feature_struct.features)
         end
         
         parfor k = 1:(2+3+4)
-            system(strcat('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp',num2str(k),'.png /mnt/rd/tmp',num2str(k)));
+            system(strcat('/usr/local/bin/tesseract /mnt/rd/tmp',num2str(k),'.png /mnt/rd/tmp',num2str(k)));
         end
         
         parfor k = 1:(2+3+4)
@@ -296,6 +296,11 @@ for i=1:length(feature_struct.features)
             
             feature_struct.text{i}{j} = resultCell;
             
+            l = resultCell;
+            
+            
+            
+            feature_struct.finaltext{i}{j} = toSLMandBeyond(l{:});
             %feature_struct.finaltext{i}{j} = toSLMandBeyond(resultCell{:});
     end
    

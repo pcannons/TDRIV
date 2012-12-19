@@ -5,7 +5,7 @@ function segImage = graykmeans(img, k)
     means = rand(k, 1);
     means(:, 1) = round(means(:, 1).*255);
 
-    minChange = 3;
+    minChange = 0;
 
     % Made the image into a column for some optimizations
     imgc = double(reshape(img, iSize(1)*iSize(2),1));

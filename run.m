@@ -193,12 +193,22 @@ for i=1:length(feature_struct.features)
     for j=1:length(feature_struct.features{i})
         set = svmPredict(model, feature_struct.features{i}{j});
         
-        prob = mean(set);
+        conf = 0;
+        sigma = 10;
+        height = size(feature_struct.subpics{i}{j},1);
+        region = imresize(feature_struct.subpics{i}{j}, [16 NaN]);
         
-        if(prob > 0.67)
-            feature_struct.text_candidate{i}(j) = 1;
-        else
-            feature_struct.text_candidate{i}(j) = 0;
+        subpicLength = size(region, 2);
+        center = floor(subpicLength/2);
+        
+        for l=1:length(set)
+            di = center - ((l+1)*4);
+            
+            SVMoutput = set(l);
+            if(SVMoutput == 0)
+                SVMoutput = -1;
+            end
+            conf = conf + SVMoutput * 1/(sqrt(2*pi)*sigma)*exp(-di^2/(2*sigma^2));
         end
         
         feature_struct.segmented_regions{i}{j} = graykmeans(feature_struct.subpics{i}{j},K);
@@ -232,22 +242,22 @@ for i=1:length(feature_struct.features)
 %             
 %         end
         
-            imwrite((feature_struct.segmented_regions{i}{j}(:,:,1)).*255, 'tmp1.png',...
+            imwrite((feature_struct.segmented_regions{i}{j}(:,:,1)).*255, '/mnt/rd/tmp1.png',...
                 'png', 'bitdepth', 8);
-            imwrite((feature_struct.segmented_regions{i}{j}(:,:,2)).*255, 'tmp2.png',...
+            imwrite((feature_struct.segmented_regions{i}{j}(:,:,2)).*255, '/mnt/rd/tmp2.png',...
                 'png', 'bitdepth', 8);
-            imwrite((feature_struct.segmented_regions{i}{j}(:,:,3)).*255, 'tmp3.png',...
+            imwrite((feature_struct.segmented_regions{i}{j}(:,:,3)).*255, '/mnt/rd/tmp3.png',...
                 'png', 'bitdepth', 8);
             
             spmd
-                system('/usr/local/bin/tesseract -psm 7 tmp1.png tmp1');
-                system('/usr/local/bin/tesseract -psm 7 tmp2.png tmp2');
-                system('/usr/local/bin/tesseract -psm 7 tmp3.png tmp3');
+                system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp1.png /mnt/rd/tmp1');
+                system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp2.png /mnt/rd/tmp2');
+                system('/usr/local/bin/tesseract -psm 7 /mnt/rd/tmp3.png /mnt/rd/tmp3');
             end
             spmd
-                [~, resultCell{1}] = system('cat tmp1.txt');
-                [~, resultCell{2}] = system('cat tmp2.txt');
-                [~, resultCell{3}] = system('cat tmp3.txt');
+                [~, resultCell{1}] = system('cat /mnt/rd/tmp1.txt');
+                [~, resultCell{2}] = system('cat /mnt/rd/tmp2.txt');
+                [~, resultCell{3}] = system('cat /mnt/rd/tmp3.txt');
             end
             
             feature_struct.text{i}{j} = resultCell;

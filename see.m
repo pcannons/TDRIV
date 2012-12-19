@@ -3,7 +3,9 @@ for i=1:length(feature_struct.features)
     
         if(feature_struct.text_candidate{i}(j) == 1)
             imshow(feature_struct.subpics{i}{j})
-            feature_struct.text{i}{j}{:}
+            l = feature_struct.text{i}{j}{:};
+            feature_struct.text_candidate{i}(j)
+            l{:}
             pause
         end
     

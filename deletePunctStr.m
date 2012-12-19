@@ -12,7 +12,6 @@ textFile = char(textFileIn);
 [m n] = size(textFile);
 
 for i = 1:n
-    textFile(i)
     if (textFile(i) == '.')
         newArray(i) = space;
     elseif (textFile(i) == '!')
@@ -70,6 +69,6 @@ for i = 1:n
 
 end
 
-fprintf(nid, '%s', newArray);
+fprintf(nid, '%s\n', newArray);
 fclose('all');
 

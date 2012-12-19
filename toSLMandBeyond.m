@@ -29,13 +29,28 @@ end
 
 minNumOOVs = min(numOOVs);
 
+possMinIndex = 1;
 % find text region with lowest number of OOVs
 for i = 1:nargin
    if (numOOVs(i) == minNumOOVs)
-       break;
+       possMin{possMinIndex} = varargin{i};
+       possMinIndex = possMinIndex + 1;
    end
 end
 
-textStr = varargin{i};
+% keep string with most number of characters  
+for i = 1:possMinIndex-1
+    A{i} = isstrprop(possMin{i}, 'alpha');
+    sumA{i} = sum(A{i});
+end
+
+maxAlphas = max([sumA{:}]);
+for i = 1:possMinIndex-1
+    if (sumA{i} == maxAlphas)
+        break;
+    end
+end
+
+textStr = possMin{i};
 
 

@@ -1,0 +1,9 @@
+evallm : Computing perplexity of the language model with respect
+   to the text try.txt
+Perplexity = 147.15, Entropy = 7.20 bits
+Computation based on 4 words.
+Number of 3-grams hit = 0  (0.00%)
+Number of 2-grams hit = 2  (50.00%)
+Number of 1-grams hit = 2  (50.00%)
+1 OOVs (20.00%) and 0 context cues were removed from the calculation.
+evallm : 

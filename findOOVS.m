@@ -11,6 +11,12 @@ for i = 1:n
         if (region(i + 1) == 'O')
             if (region(i + 2) == 'V')
                 if (region(i + 3) == 's')
+                    % Check for any possible words
+                    if (region(i + 6) == '-')
+                        oovs = '999';
+                        break;
+                    end
+                    % There are some identified words
                     i = i - 2;
                     while (region(i) ~= ' ')
                         i = i - 1;

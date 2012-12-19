@@ -17,9 +17,9 @@ for i = 1:numel(subImages)
         toBeRemoved(end + 1) = i;
     end
     
-    if (siSize(2)/siSize(1) < MIN_ASPECT_RATIO) % Too skinny
-        toBeRemoved(end + 1) = i;
-    end
+%     if (siSize(2)/siSize(1) < MIN_ASPECT_RATIO) % Too skinny
+%         toBeRemoved(end + 1) = i;
+%     end
     
     if (siSize(1) < MIN_WIDTH) % Too short
         toBeRemoved(end + 1) = i;

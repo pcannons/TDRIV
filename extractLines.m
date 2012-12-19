@@ -28,7 +28,7 @@ function rects = extractLines(subpic, loc, showRects)
     
     % This finds lines that don't differ by (7) * THIS IS FROM MATLAB FILE
     % EXCHANGE *
-    lineBreaks = mat2cell(horizProjMinima',1,diff([0,find(diff(horizProjMinima') >= 5),length(horizProjMinima)]));
+    lineBreaks = mat2cell(horizProjMinima',1,diff([0,find(diff(horizProjMinima') >= 7),length(horizProjMinima)]));
 
     % Remove consequtive lines with median
     lineBreaks = round(cellfun(@median, lineBreaks));

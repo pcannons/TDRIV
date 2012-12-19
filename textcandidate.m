@@ -30,7 +30,7 @@ function [candidateTextRegions locs] = textcandidate( img , showPics)
     % Show the composite image
     jointMap = logical(horizdil.*vertdil);
     jointMap = imclose(jointMap, strel('rectangle',[2 15]));
-    %jointMap = imclose(jointMap, strel('rectangle',[6 6]));
+    jointMap = imclose(jointMap, strel('rectangle',[6 6]));
 
     if (strcmp(showPics, 'true'))
         colormap(gray)

@@ -1,0 +1,2 @@
+perplexity -text try.txt
+quit

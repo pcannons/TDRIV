@@ -1,5 +1,5 @@
 
-im = feature_struct.images{65};
+im = feature_struct.images{10};
 
 % Scale down very large images
 [m, ~] = size(im);

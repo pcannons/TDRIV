@@ -261,9 +261,10 @@ for i=1:length(feature_struct.features)
             end
             
             feature_struct.text{i}{j} = resultCell;
-
-        
+            
+            feature_struct.finaltext{i}{j} = toSLMandBeyond(resultCell{:});
     end
+   
 end
 
 close all

@@ -41,6 +41,26 @@ for i = 1:n
         newArray(i) = space;
     elseif (fileArray(i) == ';')
         newArray(i) = space;
+    elseif (fileArray(i) == '$')
+        newArray(i) = space;
+    elseif (fileArray(i) == '(')
+        newArray(i) = space;
+    elseif (fileArray(i) == ')')
+        newArray(i) = space;
+    elseif (fileArray(i) == '[')
+        newArray(i) = space;
+    elseif (fileArray(i) == ']')
+        newArray(i) = space;
+    elseif (fileArray(i) == '{')
+        newArray(i) = space;
+    elseif (fileArray(i) == '}')
+        newArray(i) = space;
+    elseif (fileArray(i) == '#')
+        newArray(i) = space;
+    elseif (fileArray(i) == '%')
+        newArray(i) = space;
+    elseif (fileArray(i) == '_')
+        newArray(i) = space;
     else
         newArray(i) = fileArray(i);  
     
@@ -48,6 +68,6 @@ for i = 1:n
 
 end
 
-fprintf(nid, '%s', newArray);
+fprintf(nid, '%s', lower(newArray));
 fclose('all');
 

@@ -240,7 +240,7 @@ for i=1:length(feature_struct.features)
                 pruneConnectedComponents(feature_struct.segmented_regions{i}{j}{k});
         end
         
-        %fprintf('Probabilty of text: %f\n', prob);
+        fprintf('Probabilty of text: %f\n', conf);
         %imshow(feature_struct.subpics{i}{j});
         %pause
     end   

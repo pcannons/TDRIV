@@ -231,6 +231,9 @@ if(conf.trainSVM)
 
     fprintf('Time to find optimal C and sigma: %d seconds. \n', ceil(toc));
 
+    sigma = 3;
+    C = 10;
+    
     tic
     % Train the SVM
     model = svmTrain(X, y, C, @(x1, x2) gaussianKernel(x1, x2, sigma));

@@ -21,20 +21,19 @@ function [C, sigma] = dataset3Params(X, y, Xval, yval)
     errorMat = zeros(length(Cv), length(Sv));
 
     for cIndx = 1:length(Cv)
-        for sIndx = 1:length(Sv);
-            C = Cv(cIndx);
+        errorMatSlice = zeros(1, length(Sv));
+        C = Cv(cIndx);
+        parfor sIndx = 1:length(Sv);
             sigma = Sv(sIndx);
             model = svmTrain(X, y, C, @(x1, x2) gaussianKernel(x1, x2, sigma));
             pred = svmPredict(model,Xval);
             error = mean(double(pred ~= yval));
-            errorMat(cIndx,sIndx) = error;
-            if (error < bestError)
-                bestC = C;
-                bestSigma = sigma;
-                bestError = error;
-            end
+            errorMatSlice(sIndx) = error;
         end
+        errorMat(cIndx,:) = errorMatSlice;
     end
+    
+    [bestC bestSigma] = ind2sub(size(errorMat), find(errorMat == min(min(errorMat)),1));
 
     C = bestC;
     sigma = bestSigma;

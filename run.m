@@ -15,7 +15,7 @@ conf.dataDir = 'testdata/';
 
 % Various paths
 conf.imagesPath = fullfile(conf.dataDir, 'images.mat') ;
-conf.modelPath = fullfile('model/', 'model.mat');
+conf.modelPath = fullfile('model/', 'modelC10Sig3err1859.mat');
 
 % Load the model
 model = load(conf.modelPath);
